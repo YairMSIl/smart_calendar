@@ -83,6 +83,9 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
 
     let prevGregorianMonth = -1;
 
+    const today = new Date();
+    const todayFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
     while (currentDate <= endDate) {
         const cell = document.createElement('div');
         cell.className = 'calendar-cell';
@@ -93,6 +96,10 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
 
         const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
         cell.dataset.date = formattedDate;
+
+        if (formattedDate === todayFormatted) {
+            cell.classList.add('today');
+        }
 
         let cellHTML = `<div class="date">${currentDate.getDate()}</div>`;
 

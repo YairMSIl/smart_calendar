@@ -327,3 +327,17 @@ body {
 .calendar-cell.split-bg {
     background: linear-gradient(to right, var(--current-color) 50%, var(--prev-color) 50%);
 }
+
+@keyframes flash {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 165, 0, 1);
+  }
+}
+
+.today {
+  animation: flash 1.5s infinite;
+  border: 1px solid orange;
+}
