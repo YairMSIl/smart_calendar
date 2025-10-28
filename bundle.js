@@ -166,11 +166,18 @@ function _generateCalendar() {
                   if (noteIndex !== -1) {
                     note = notes[noteIndex];
                     preview = note.text.substring(0, 15);
-                    cellHTML += "<div class=\"note-indicator\">(".concat(noteIndex + 1, ") ").concat(preview, "...</div>");
+                    cellHTML += "<div class=\"note-indicator\" data-note-index=\"".concat(noteIndex, "\">(").concat(noteIndex + 1, ") ").concat(preview, "...</div>");
                   }
                   cell.innerHTML = cellHTML;
-                  cell.addEventListener('click', function () {
-                    toggleMarking(this, updateURLFromState);
+                  cell.addEventListener('click', function (event) {
+                    var noteIndicator = event.target.closest('.note-indicator');
+                    if (noteIndicator) {
+                      event.stopPropagation();
+                      var index = noteIndicator.dataset.noteIndex;
+                      (0, _notes.highlightNote)(index);
+                    } else if (!(0, _notes.isNoteEditModeActive)()) {
+                      toggleMarking(this, updateURLFromState);
+                    }
                   });
                   calendar.appendChild(cell);
                   currentDate.setDate(currentDate.getDate() + 1);
@@ -307,7 +314,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.clearAllNotes = clearAllNotes;
 exports.getNotes = getNotes;
+exports.highlightNote = highlightNote;
 exports.initNotes = initNotes;
+exports.isNoteEditModeActive = isNoteEditModeActive;
 exports.loadNotesFromURL = loadNotesFromURL;
 exports.renderNotesList = renderNotesList;
 /**
@@ -397,9 +406,23 @@ function renderNotesList() {
   });
   notes.forEach(function (note, index) {
     var li = document.createElement('li');
+    li.id = "note-".concat(index);
     li.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
     notesList.appendChild(li);
   });
+}
+function highlightNote(noteIndex) {
+  var noteElement = document.getElementById("note-".concat(noteIndex));
+  if (noteElement) {
+    noteElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+    noteElement.classList.add('flash');
+    setTimeout(function () {
+      noteElement.classList.remove('flash');
+    }, 1500);
+  }
 }
 function loadNotesFromURL(notesData) {
   if (notesData) {
@@ -413,6 +436,9 @@ function getNotes() {
 function clearAllNotes() {
   notes = [];
   renderNotesList();
+}
+function isNoteEditModeActive() {
+  return isNoteEditMode;
 }
 
 },{}],4:[function(require,module,exports){

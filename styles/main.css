@@ -266,6 +266,11 @@ body {
   .pink-bg .events div {
     color: #1c2833;
   }
+
+  #notes-list li {
+    background: #4a4a4a;
+    color: #f1f1f1;
+  }
 }
 @media (max-width: 768px) {
     .calendar-container {
@@ -385,14 +390,35 @@ body {
     resize: vertical;
 }
 
+.note-controls {
+    text-align: center;
+    margin: 15px 0;
+}
+
 .note-indicator {
     font-size: 11px;
-    color: var(--danger-accent);
+    color: var(--success-accent);
     font-weight: bold;
     margin-top: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+#notes-list li.flash {
+    animation: flash-note 1.5s;
+}
+
+@keyframes flash-note {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--success-accent);
+    transform: scale(1.01);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--success-accent);
+    transform: scale(1.02);
+  }
 }
 
 .hidden {
