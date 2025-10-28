@@ -341,3 +341,60 @@ body {
   animation: flash 1.5s infinite;
   border: 1px solid orange;
 }
+
+#notes-container {
+    margin-top: 20px;
+    padding: 0 10px;
+}
+
+#notes-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#notes-list li {
+    background: var(--info-bg);
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 5px;
+    border-right: 4px solid var(--primary-accent);
+}
+
+#note-editor {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    padding: 20px;
+    background: var(--card-bg);
+    box-shadow: 0 5px 20px var(--shadow-color);
+    border-radius: 10px;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+}
+
+#note-editor textarea {
+    width: calc(100% - 20px);
+    height: 120px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 16px;
+    resize: vertical;
+}
+
+.note-indicator {
+    font-size: 11px;
+    color: var(--danger-accent);
+    font-weight: bold;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hidden {
+    display: none;
+}

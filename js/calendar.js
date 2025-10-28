@@ -1,4 +1,5 @@
 import { HebrewCalendar, HDate } from '@hebcal/core';
+import { getNotes } from './notes.js';
 /**
  * @file-overview This file contains the core calendar generation logic, including
  * fetching data from the Hebcal API and building the HTML for the calendar grid.
@@ -86,6 +87,8 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
     const today = new Date();
     const todayFormatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
+    const notes = getNotes().sort((a, b) => new Date(a.date) - new Date(b.date));
+
     while (currentDate <= endDate) {
         const cell = document.createElement('div');
         cell.className = 'calendar-cell';
@@ -137,6 +140,13 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
                 cellHTML += `<div>${event}</div>`;
             });
             cellHTML += '</div>';
+        }
+
+        const noteIndex = notes.findIndex(n => n.date === formattedDate);
+        if (noteIndex !== -1) {
+            const note = notes[noteIndex];
+            const preview = note.text.substring(0, 15);
+            cellHTML += `<div class="note-indicator">(${noteIndex + 1}) ${preview}...</div>`;
         }
 
         cell.innerHTML = cellHTML;
