@@ -7,18 +7,39 @@
 import { generateCalendar } from './calendar.js';
 import { updateURLFromState, loadStateFromURL, applyMarksFromURL } from './state.js';
 import { toggleMarking, fillSquares, resetCalendar, updateCellView, updateCounter, applySplitDayView } from './ui.js';
+import { initNotes, loadNotesFromURL, clearAllNotes } from './notes.js';
 
 async function main() {
     const dependencies = {
         toggleMarking,
         updateURLFromState,
         updateCellView,
-        updateCounter
+        updateCounter,
     };
 
-    document.getElementById('generate-calendar-btn').addEventListener('click', () => generateCalendar(dependencies));
+    async function refreshCalendarView() {
+        await generateCalendar(dependencies);
+        const state = loadStateFromURL();
+        if (state) {
+            applyMarksFromURL(state.marks, updateCellView);
+            updateCounter();
+            applySplitDayView();
+        }
+    }
+
+    initNotes({
+        updateURLFromState,
+        refreshCalendarView,
+    });
+
+    document.getElementById('generate-calendar-btn').addEventListener('click', refreshCalendarView);
     document.getElementById('fill-squares-btn').addEventListener('click', () => fillSquares(updateURLFromState));
-    document.getElementById('reset-calendar-btn').addEventListener('click', () => resetCalendar(updateURLFromState));
+    document.getElementById('reset-calendar-btn').addEventListener('click', () => {
+        resetCalendar(updateURLFromState);
+        clearAllNotes();
+        updateURLFromState();
+        refreshCalendarView();
+    });
 
     const splitDayToggleBtn = document.getElementById('split-day-toggle-btn');
     if (splitDayToggleBtn) {
@@ -34,10 +55,8 @@ async function main() {
         if (initialState.split) {
             splitDayToggleBtn.classList.add('active');
         }
-        await generateCalendar(dependencies);
-        applyMarksFromURL(initialState.marks, updateCellView);
-        updateCounter();
-        applySplitDayView(); // Apply view after everything is loaded
+        loadNotesFromURL(initialState.notes);
+        await refreshCalendarView();
     } else {
         await generateCalendar(dependencies);
     }
