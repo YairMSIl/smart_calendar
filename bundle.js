@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.generateCalendar = generateCalendar;
 var _core = require("@hebcal/core");
+var _notes = require("./notes.js");
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
@@ -40,7 +41,7 @@ function generateCalendar(_x) {
 }
 function _generateCalendar() {
   _generateCalendar = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(_ref) {
-    var toggleMarking, updateURLFromState, startDateInput, endDateInput, startDate, endDate, hebrewDatesMap, events, startYear, endYear, startMonth, endMonth, year, monthStart, monthEnd, month, monthEvents, _i, _events, event, eventDate, formattedDate, calendar, days, currentDate, currentWeekday, i, emptyCell, prevGregorianMonth, _loop;
+    var toggleMarking, updateURLFromState, startDateInput, endDateInput, startDate, endDate, hebrewDatesMap, events, startYear, endYear, startMonth, endMonth, year, monthStart, monthEnd, month, monthEvents, _i, _events, event, eventDate, formattedDate, calendar, days, currentDate, currentWeekday, i, emptyCell, prevGregorianMonth, today, todayFormatted, notes, _loop;
     return _regenerator().w(function (_context2) {
       while (1) switch (_context2.n) {
         case 0:
@@ -105,8 +106,13 @@ function _generateCalendar() {
             calendar.appendChild(emptyCell);
           }
           prevGregorianMonth = -1;
+          today = new Date();
+          todayFormatted = "".concat(today.getFullYear(), "-").concat(String(today.getMonth() + 1).padStart(2, '0'), "-").concat(String(today.getDate()).padStart(2, '0'));
+          notes = (0, _notes.getNotes)().sort(function (a, b) {
+            return new Date(a.date) - new Date(b.date);
+          });
           _loop = /*#__PURE__*/_regenerator().m(function _loop() {
-            var cell, weekday, formattedDate, cellHTML, isFirstDayOfCalendar, currentGregorianMonth, monthName, hdate, hebrewDayString, hebrewMonth, isFirstOfHebrewMonth, hebrewDateInfo;
+            var cell, weekday, formattedDate, cellHTML, isFirstDayOfCalendar, currentGregorianMonth, monthName, hdate, hebrewDayString, hebrewMonth, isFirstOfHebrewMonth, hebrewDateInfo, noteIndex, note, preview;
             return _regenerator().w(function (_context) {
               while (1) switch (_context.n) {
                 case 0:
@@ -118,6 +124,9 @@ function _generateCalendar() {
                   }
                   formattedDate = "".concat(currentDate.getFullYear(), "-").concat(String(currentDate.getMonth() + 1).padStart(2, '0'), "-").concat(String(currentDate.getDate()).padStart(2, '0'));
                   cell.dataset.date = formattedDate;
+                  if (formattedDate === todayFormatted) {
+                    cell.classList.add('today');
+                  }
                   cellHTML = "<div class=\"date\">".concat(currentDate.getDate(), "</div>");
                   isFirstDayOfCalendar = currentDate.getTime() === startDate.getTime();
                   currentGregorianMonth = currentDate.getMonth(); // Gregorian month display
@@ -151,6 +160,14 @@ function _generateCalendar() {
                     });
                     cellHTML += '</div>';
                   }
+                  noteIndex = notes.findIndex(function (n) {
+                    return n.date === formattedDate;
+                  });
+                  if (noteIndex !== -1) {
+                    note = notes[noteIndex];
+                    preview = note.text.substring(0, 15);
+                    cellHTML += "<div class=\"note-indicator\">(".concat(noteIndex + 1, ") ").concat(preview, "...</div>");
+                  }
                   cell.innerHTML = cellHTML;
                   cell.addEventListener('click', function () {
                     toggleMarking(this, updateURLFromState);
@@ -179,12 +196,13 @@ function _generateCalendar() {
   return _generateCalendar.apply(this, arguments);
 }
 
-},{"@hebcal/core":5}],2:[function(require,module,exports){
+},{"./notes.js":3,"@hebcal/core":6}],2:[function(require,module,exports){
 "use strict";
 
 var _calendar = require("./calendar.js");
 var _state = require("./state.js");
 var _ui = require("./ui.js");
+var _notes = require("./notes.js");
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
@@ -197,25 +215,55 @@ function main() {
   return _main.apply(this, arguments);
 }
 function _main() {
-  _main = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-    var dependencies, splitDayToggleBtn, initialState;
-    return _regenerator().w(function (_context) {
-      while (1) switch (_context.n) {
+  _main = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+    var dependencies, refreshCalendarView, _refreshCalendarView, splitDayToggleBtn, initialState;
+    return _regenerator().w(function (_context2) {
+      while (1) switch (_context2.n) {
         case 0:
+          _refreshCalendarView = function _refreshCalendarView3() {
+            _refreshCalendarView = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+              var state;
+              return _regenerator().w(function (_context) {
+                while (1) switch (_context.n) {
+                  case 0:
+                    _context.n = 1;
+                    return (0, _calendar.generateCalendar)(dependencies);
+                  case 1:
+                    state = (0, _state.loadStateFromURL)();
+                    if (state) {
+                      (0, _state.applyMarksFromURL)(state.marks, _ui.updateCellView);
+                      (0, _ui.updateCounter)();
+                      (0, _ui.applySplitDayView)();
+                    }
+                  case 2:
+                    return _context.a(2);
+                }
+              }, _callee);
+            }));
+            return _refreshCalendarView.apply(this, arguments);
+          };
+          refreshCalendarView = function _refreshCalendarView2() {
+            return _refreshCalendarView.apply(this, arguments);
+          };
           dependencies = {
             toggleMarking: _ui.toggleMarking,
             updateURLFromState: _state.updateURLFromState,
             updateCellView: _ui.updateCellView,
             updateCounter: _ui.updateCounter
           };
-          document.getElementById('generate-calendar-btn').addEventListener('click', function () {
-            return (0, _calendar.generateCalendar)(dependencies);
+          (0, _notes.initNotes)({
+            updateURLFromState: _state.updateURLFromState,
+            refreshCalendarView: refreshCalendarView
           });
+          document.getElementById('generate-calendar-btn').addEventListener('click', refreshCalendarView);
           document.getElementById('fill-squares-btn').addEventListener('click', function () {
             return (0, _ui.fillSquares)(_state.updateURLFromState);
           });
           document.getElementById('reset-calendar-btn').addEventListener('click', function () {
-            return (0, _ui.resetCalendar)(_state.updateURLFromState);
+            (0, _ui.resetCalendar)(_state.updateURLFromState);
+            (0, _notes.clearAllNotes)();
+            (0, _state.updateURLFromState)();
+            refreshCalendarView();
           });
           splitDayToggleBtn = document.getElementById('split-day-toggle-btn');
           if (splitDayToggleBtn) {
@@ -227,33 +275,147 @@ function _main() {
           }
           initialState = (0, _state.loadStateFromURL)();
           if (!initialState) {
-            _context.n = 2;
+            _context2.n = 2;
             break;
           }
           if (initialState.split) {
             splitDayToggleBtn.classList.add('active');
           }
-          _context.n = 1;
-          return (0, _calendar.generateCalendar)(dependencies);
+          (0, _notes.loadNotesFromURL)(initialState.notes);
+          _context2.n = 1;
+          return refreshCalendarView();
         case 1:
-          (0, _state.applyMarksFromURL)(initialState.marks, _ui.updateCellView);
-          (0, _ui.updateCounter)();
-          (0, _ui.applySplitDayView)(); // Apply view after everything is loaded
-          _context.n = 3;
+          _context2.n = 3;
           break;
         case 2:
-          _context.n = 3;
+          _context2.n = 3;
           return (0, _calendar.generateCalendar)(dependencies);
         case 3:
-          return _context.a(2);
+          return _context2.a(2);
       }
-    }, _callee);
+    }, _callee2);
   }));
   return _main.apply(this, arguments);
 }
 document.addEventListener('DOMContentLoaded', main);
 
-},{"./calendar.js":1,"./state.js":3,"./ui.js":4}],3:[function(require,module,exports){
+},{"./calendar.js":1,"./notes.js":3,"./state.js":4,"./ui.js":5}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.clearAllNotes = clearAllNotes;
+exports.getNotes = getNotes;
+exports.initNotes = initNotes;
+exports.loadNotesFromURL = loadNotesFromURL;
+exports.renderNotesList = renderNotesList;
+/**
+ * @file-overview This file manages the notes functionality, including adding,
+ * editing, deleting, and displaying notes.
+ */
+
+var notes = [];
+var isNoteEditMode = false;
+var selectedDate = null;
+var updateURLCallback = function updateURLCallback() {};
+var refreshCalendarCallback = function refreshCalendarCallback() {};
+function initNotes(dependencies) {
+  updateURLCallback = dependencies.updateURLFromState;
+  refreshCalendarCallback = dependencies.refreshCalendarView;
+  var addNoteBtn = document.getElementById('add-note-btn');
+  var noteEditor = document.getElementById('note-editor');
+  var saveNoteBtn = document.getElementById('save-note-btn');
+  var cancelNoteBtn = document.getElementById('cancel-note-btn');
+  var lockNoteBtn = document.getElementById('lock-note-btn');
+  addNoteBtn.addEventListener('click', function () {
+    isNoteEditMode = !isNoteEditMode;
+    addNoteBtn.classList.toggle('active', isNoteEditMode);
+    if (!isNoteEditMode) {
+      hideNoteEditor();
+    }
+  });
+  document.getElementById('calendar').addEventListener('click', function (event) {
+    var cell = event.target.closest('.calendar-cell[data-date]');
+    if (isNoteEditMode && cell) {
+      selectedDate = cell.dataset.date;
+      showNoteEditor(selectedDate);
+    }
+  });
+  saveNoteBtn.addEventListener('click', saveNote);
+  cancelNoteBtn.addEventListener('click', hideNoteEditor);
+}
+function showNoteEditor(date) {
+  var noteEditor = document.getElementById('note-editor');
+  var noteInput = document.getElementById('note-input');
+  var existingNote = notes.find(function (n) {
+    return n.date === date;
+  });
+  noteInput.value = existingNote ? existingNote.text : '';
+  noteEditor.classList.remove('hidden');
+  noteInput.focus();
+}
+function hideNoteEditor() {
+  var noteEditor = document.getElementById('note-editor');
+  noteEditor.classList.add('hidden');
+  selectedDate = null;
+  if (!document.getElementById('lock-note-btn').checked) {
+    isNoteEditMode = false;
+    document.getElementById('add-note-btn').classList.remove('active');
+  }
+}
+function saveNote() {
+  var noteInput = document.getElementById('note-input');
+  var text = noteInput.value.trim();
+  if (selectedDate) {
+    var existingNoteIndex = notes.findIndex(function (n) {
+      return n.date === selectedDate;
+    });
+    if (text) {
+      if (existingNoteIndex > -1) {
+        notes[existingNoteIndex].text = text;
+      } else {
+        notes.push({
+          date: selectedDate,
+          text: text
+        });
+      }
+    } else if (existingNoteIndex > -1) {
+      notes.splice(existingNoteIndex, 1);
+    }
+  }
+  renderNotesList();
+  updateURLCallback();
+  hideNoteEditor();
+  refreshCalendarCallback();
+}
+function renderNotesList() {
+  var notesList = document.getElementById('notes-list');
+  notesList.innerHTML = '';
+  notes.sort(function (a, b) {
+    return new Date(a.date) - new Date(b.date);
+  });
+  notes.forEach(function (note, index) {
+    var li = document.createElement('li');
+    li.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
+    notesList.appendChild(li);
+  });
+}
+function loadNotesFromURL(notesData) {
+  if (notesData) {
+    notes = notesData;
+    renderNotesList();
+  }
+}
+function getNotes() {
+  return notes;
+}
+function clearAllNotes() {
+  notes = [];
+  renderNotesList();
+}
+
+},{}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -263,6 +425,7 @@ exports.applyMarksFromURL = applyMarksFromURL;
 exports.loadStateFromURL = loadStateFromURL;
 exports.updateURLFromState = updateURLFromState;
 var _ui = require("./ui.js");
+var _notes = require("./notes.js");
 /**
  * @file-overview This file manages the application's state by interacting with the URL query parameters.
  * It handles loading the state from the URL on page load and updating the URL when the state changes.
@@ -284,9 +447,13 @@ function updateURLFromState() {
   params.set('startDate', startDate);
   params.set('endDate', endDate);
   params.set('marks', marks);
-  var splitButton = document.getElementById('split-day-toggle');
-  if (splitButton && splitButton.checked) {
+  var splitButton = document.getElementById('split-day-toggle-btn');
+  if (splitButton && splitButton.classList.contains('active')) {
     params.set('split', 'true');
+  }
+  var notes = (0, _notes.getNotes)();
+  if (notes && notes.length > 0) {
+    params.set('notes', encodeURIComponent(JSON.stringify(notes)));
   }
   history.replaceState({}, '', "?".concat(params.toString()));
 }
@@ -299,9 +466,19 @@ function loadStateFromURL() {
     document.getElementById('endDate').value = endDate;
     var marks = params.get('marks');
     var split = params.get('split');
+    var notesParam = params.get('notes');
+    var notes = [];
+    if (notesParam) {
+      try {
+        notes = JSON.parse(decodeURIComponent(notesParam));
+      } catch (e) {
+        console.error("Error parsing notes from URL", e);
+      }
+    }
     return {
       marks: marks || '',
-      split: split === 'true'
+      split: split === 'true',
+      notes: notes
     };
   }
   return null;
@@ -327,7 +504,7 @@ function applyMarksFromURL(marks, updateCellView) {
   (0, _ui.applySplitDayView)();
 }
 
-},{"./ui.js":4}],4:[function(require,module,exports){
+},{"./notes.js":3,"./ui.js":5}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -484,7 +661,7 @@ function applySplitDayView() {
   }
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*! @hebcal/core v5.10.1, distributed under GPLv2 https://www.gnu.org/licenses/gpl-2.0.txt */
 'use strict';
 
@@ -8864,7 +9041,7 @@ exports.parshiot = parshiot;
 exports.version = version;
 
 
-},{"temporal-polyfill/global":6}],6:[function(require,module,exports){
+},{"temporal-polyfill/global":7}],7:[function(require,module,exports){
 !function() {
   "use strict";
   function clampProp(props, propName, min, max, overflow) {
