@@ -271,7 +271,18 @@ body {
     background: #4a4a4a;
     color: #f1f1f1;
   }
+
+  .note-controls, #notes-container h3 {
+      color: var(--fg-color);
+  }
 }
+
+#notes-list .note-date {
+    font-weight: normal;
+    font-size: 0.9em;
+    color: var(--text-muted);
+}
+
 @media (max-width: 768px) {
     .calendar-container {
         padding: 15px;
@@ -419,6 +430,31 @@ body {
     box-shadow: 0 0 20px var(--success-accent);
     transform: scale(1.02);
   }
+}
+
+.calendar-cell.flash-day {
+    animation: flash-day 1.5s;
+}
+
+@keyframes flash-day {
+    0%, 100% {
+        box-shadow: 0 0 8px var(--primary-accent);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--primary-accent);
+    }
+}
+
+#notes-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-edit {
+    padding: 5px 10px;
+    font-size: 14px;
+    background: var(--primary-accent);
 }
 
 .hidden {

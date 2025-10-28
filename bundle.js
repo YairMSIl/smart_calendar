@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.generateCalendar = generateCalendar;
+exports.highlightCalendarDay = highlightCalendarDay;
 var _core = require("@hebcal/core");
 var _notes = require("./notes.js");
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
@@ -202,6 +203,19 @@ function _generateCalendar() {
   }));
   return _generateCalendar.apply(this, arguments);
 }
+function highlightCalendarDay(date) {
+  var cell = document.querySelector(".calendar-cell[data-date=\"".concat(date, "\"]"));
+  if (cell) {
+    cell.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+    cell.classList.add('flash-day');
+    setTimeout(function () {
+      cell.classList.remove('flash-day');
+    }, 1500);
+  }
+}
 
 },{"./notes.js":3,"@hebcal/core":6}],2:[function(require,module,exports){
 "use strict";
@@ -319,6 +333,7 @@ exports.initNotes = initNotes;
 exports.isNoteEditModeActive = isNoteEditModeActive;
 exports.loadNotesFromURL = loadNotesFromURL;
 exports.renderNotesList = renderNotesList;
+var _calendar = require("./calendar.js");
 /**
  * @file-overview This file manages the notes functionality, including adding,
  * editing, deleting, and displaying notes.
@@ -407,7 +422,21 @@ function renderNotesList() {
   notes.forEach(function (note, index) {
     var li = document.createElement('li');
     li.id = "note-".concat(index);
-    li.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
+    var noteContent = document.createElement('span');
+    noteContent.innerHTML = "<strong class=\"note-date\">".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
+    var editButton = document.createElement('button');
+    editButton.textContent = 'ערוך';
+    editButton.className = 'btn btn-edit';
+    editButton.addEventListener('click', function (e) {
+      e.stopPropagation();
+      selectedDate = note.date;
+      showNoteEditor(note.date);
+    });
+    li.appendChild(noteContent);
+    li.appendChild(editButton);
+    li.addEventListener('click', function () {
+      (0, _calendar.highlightCalendarDay)(note.date);
+    });
     notesList.appendChild(li);
   });
 }
@@ -441,7 +470,7 @@ function isNoteEditModeActive() {
   return isNoteEditMode;
 }
 
-},{}],4:[function(require,module,exports){
+},{"./calendar.js":1}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
