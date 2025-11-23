@@ -165,7 +165,11 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
                     highlightNoteInList(noteDate);
                 }
             } else {
-                toggleMarking(this, updateURLFromState);
+                // Don't toggle marking if in note edit mode
+                const addNoteBtn = document.getElementById('add-note-btn');
+                if (!addNoteBtn.classList.contains('active')) {
+                    toggleMarking(this, updateURLFromState);
+                }
             }
         });
         calendar.appendChild(cell);

@@ -83,6 +83,16 @@ function saveNote() {
     refreshCalendarCallback();
 }
 
+function deleteNote(date) {
+    const noteIndex = notes.findIndex(n => n.date === date);
+    if (noteIndex > -1) {
+        notes.splice(noteIndex, 1);
+        renderNotesList();
+        updateURLCallback();
+        refreshCalendarCallback();
+    }
+}
+
 export function renderNotesList() {
     const notesList = document.getElementById('notes-list');
     notesList.innerHTML = '';
@@ -106,13 +116,26 @@ export function renderNotesList() {
             li.classList.add('note-out-of-range');
         }
 
-        li.innerHTML = `<strong>${index + 1}. ${note.date}:</strong> ${note.text}`;
-        li.style.cursor = 'pointer';
+        // Create delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-note-btn';
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = 'מחק הערה';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteNote(note.date);
+        });
 
-        // Add click handler to highlight corresponding calendar day
-        li.addEventListener('click', () => {
+        // Create note content wrapper
+        const noteContent = document.createElement('span');
+        noteContent.innerHTML = `<strong>${index + 1}. ${note.date}:</strong> ${note.text}`;
+        noteContent.style.cursor = 'pointer';
+        noteContent.addEventListener('click', () => {
             highlightCalendarDay(note.date);
         });
+
+        li.appendChild(deleteBtn);
+        li.appendChild(noteContent);
 
         notesList.appendChild(li);
     });
