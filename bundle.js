@@ -183,7 +183,11 @@ function _generateCalendar() {
                         (0, _notes.highlightNoteInList)(_noteDate);
                       }
                     } else {
-                      toggleMarking(this, updateURLFromState);
+                      // Don't toggle marking if in note edit mode
+                      var addNoteBtn = document.getElementById('add-note-btn');
+                      if (!addNoteBtn.classList.contains('active')) {
+                        toggleMarking(this, updateURLFromState);
+                      }
                     }
                   });
                   calendar.appendChild(cell);
@@ -467,6 +471,17 @@ function saveNote() {
   hideNoteEditor();
   refreshCalendarCallback();
 }
+function deleteNote(date) {
+  var noteIndex = notes.findIndex(function (n) {
+    return n.date === date;
+  });
+  if (noteIndex > -1) {
+    notes.splice(noteIndex, 1);
+    renderNotesList();
+    updateURLCallback();
+    refreshCalendarCallback();
+  }
+}
 function renderNotesList() {
   var notesList = document.getElementById('notes-list');
   notesList.innerHTML = '';
@@ -488,13 +503,26 @@ function renderNotesList() {
     if (isOutOfRange) {
       li.classList.add('note-out-of-range');
     }
-    li.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
-    li.style.cursor = 'pointer';
 
-    // Add click handler to highlight corresponding calendar day
-    li.addEventListener('click', function () {
+    // Create delete button
+    var deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-note-btn';
+    deleteBtn.innerHTML = '🗑️';
+    deleteBtn.title = 'מחק הערה';
+    deleteBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      deleteNote(note.date);
+    });
+
+    // Create note content wrapper
+    var noteContent = document.createElement('span');
+    noteContent.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
+    noteContent.style.cursor = 'pointer';
+    noteContent.addEventListener('click', function () {
       highlightCalendarDay(note.date);
     });
+    li.appendChild(deleteBtn);
+    li.appendChild(noteContent);
     notesList.appendChild(li);
   });
 }
