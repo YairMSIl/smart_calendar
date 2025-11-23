@@ -89,8 +89,23 @@ export function renderNotesList() {
 
     notes.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    // Get current date range
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const startDate = startDateInput ? new Date(startDateInput.value) : null;
+    const endDate = endDateInput ? new Date(endDateInput.value) : null;
+
     notes.forEach((note, index) => {
         const li = document.createElement('li');
+
+        // Check if note is out of range
+        const noteDate = new Date(note.date);
+        const isOutOfRange = startDate && endDate && (noteDate < startDate || noteDate > endDate);
+
+        if (isOutOfRange) {
+            li.classList.add('note-out-of-range');
+        }
+
         li.innerHTML = `<strong>${index + 1}. ${note.date}:</strong> ${note.text}`;
         notesList.appendChild(li);
     });

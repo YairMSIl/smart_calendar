@@ -146,7 +146,11 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
         if (noteIndex !== -1) {
             const note = notes[noteIndex];
             const preview = note.text.substring(0, 15);
-            cellHTML += `<div class="note-indicator">(${noteIndex + 1}) ${preview}...</div>`;
+            // Check if note is within current date range
+            const noteDate = new Date(note.date);
+            const isInRange = noteDate >= startDate && noteDate <= endDate;
+            const noteClass = isInRange ? 'note-indicator' : 'note-indicator note-out-of-range';
+            cellHTML += `<div class="${noteClass}">(${noteIndex + 1}) ${preview}...</div>`;
         }
 
         cell.innerHTML = cellHTML;

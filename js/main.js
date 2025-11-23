@@ -5,9 +5,9 @@
  */
 
 import { generateCalendar } from './calendar.js';
-import { updateURLFromState, loadStateFromURL, applyMarksFromURL } from './state.js';
+import { updateURLFromState, loadStateFromURL, applyMarksFromURL, calculatePreservedMarks } from './state.js';
 import { toggleMarking, fillSquares, resetCalendar, updateCellView, updateCounter, applySplitDayView } from './ui.js';
-import { initNotes, loadNotesFromURL, clearAllNotes } from './notes.js';
+import { initNotes, loadNotesFromURL, clearAllNotes, getNotes } from './notes.js';
 
 async function main() {
     const dependencies = {
@@ -30,8 +30,38 @@ async function main() {
 
     // Function to update the view based on user inputs (used for "Generate Calendar")
     async function updateViewFromInputs() {
+        // FIRST: Get new dates from inputs (before anything else modifies them!)
+        const newStartDate = document.getElementById('startDate').value;
+        const newEndDate = document.getElementById('endDate').value;
+
+        // SECOND: Get old state from URL (without modifying inputs)
+        const params = new URLSearchParams(window.location.search);
+        const urlOldStartDate = params.get('startDate');
+        const urlOldEndDate = params.get('endDate');
+        const oldMarksParam = params.get('marks');
+        const oldMarks = oldMarksParam || '';
+
+        // THIRD: Calculate preserved marks based on date changes
+        const preservedMarks = calculatePreservedMarks(
+            urlOldStartDate,
+            urlOldEndDate,
+            newStartDate,
+            newEndDate,
+            oldMarks
+        );
+
+        // FOURTH: Generate the new calendar (creates new empty cells)
         await generateCalendar(dependencies);
-        updateURLFromState(); // Update URL to match the new inputs
+
+        // FIFTH: Apply the preserved marks to the new calendar
+        if (preservedMarks) {
+            applyMarksFromURL(preservedMarks, updateCellView);
+            updateCounter();
+            applySplitDayView();
+        }
+
+        // SIXTH: Update URL from the cells that now have marks applied
+        updateURLFromState();
     }
 
     initNotes({
@@ -42,10 +72,37 @@ async function main() {
     document.getElementById('generate-calendar-btn').addEventListener('click', updateViewFromInputs);
     document.getElementById('fill-squares-btn').addEventListener('click', () => fillSquares(updateURLFromState));
     document.getElementById('reset-calendar-btn').addEventListener('click', () => {
-        resetCalendar(updateURLFromState);
-        clearAllNotes();
-        updateURLFromState();
-        loadViewFromURL();
+        // Count markers and notes before resetting
+        const cells = document.querySelectorAll('.calendar-cell[data-marking]');
+        let blueCount = 0;
+        let pinkCount = 0;
+
+        cells.forEach(cell => {
+            const marking = cell.dataset.marking;
+            if (marking === 'blue' || marking === 'blue-bg') blueCount++;
+            if (marking === 'pink' || marking === 'pink-bg') pinkCount++;
+        });
+
+        const notesCount = getNotes().length;
+
+        // Build confirmation message
+        let message = 'האם אתה בטוח שברצונך לאפס את כל התוכן?\n\n';
+        message += 'פעולה זו תמחק:\n';
+        if (notesCount > 0) message += `- ${notesCount} הערות\n`;
+        if (blueCount > 0) message += `- ${blueCount} סימונים כחולים\n`;
+        if (pinkCount > 0) message += `- ${pinkCount} סימונים ורודים\n`;
+
+        if (notesCount === 0 && blueCount === 0 && pinkCount === 0) {
+            alert('אין תוכן למחיקה');
+            return;
+        }
+
+        if (confirm(message)) {
+            resetCalendar(updateURLFromState);
+            clearAllNotes();
+            updateURLFromState();
+            loadViewFromURL();
+        }
     });
 
     const splitDayToggleBtn = document.getElementById('split-day-toggle-btn');
