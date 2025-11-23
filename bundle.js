@@ -215,21 +215,40 @@ function main() {
   return _main.apply(this, arguments);
 }
 function _main() {
-  _main = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-    var dependencies, refreshCalendarView, _refreshCalendarView, splitDayToggleBtn, initialState;
-    return _regenerator().w(function (_context2) {
-      while (1) switch (_context2.n) {
+  _main = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+    var dependencies, loadViewFromURL, _loadViewFromURL, updateViewFromInputs, _updateViewFromInputs, splitDayToggleBtn, initialState;
+    return _regenerator().w(function (_context3) {
+      while (1) switch (_context3.n) {
         case 0:
-          _refreshCalendarView = function _refreshCalendarView3() {
-            _refreshCalendarView = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+          _updateViewFromInputs = function _updateViewFromInputs3() {
+            _updateViewFromInputs = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+              return _regenerator().w(function (_context2) {
+                while (1) switch (_context2.n) {
+                  case 0:
+                    _context2.n = 1;
+                    return (0, _calendar.generateCalendar)(dependencies);
+                  case 1:
+                    (0, _state.updateURLFromState)(); // Update URL to match the new inputs
+                  case 2:
+                    return _context2.a(2);
+                }
+              }, _callee2);
+            }));
+            return _updateViewFromInputs.apply(this, arguments);
+          };
+          updateViewFromInputs = function _updateViewFromInputs2() {
+            return _updateViewFromInputs.apply(this, arguments);
+          };
+          _loadViewFromURL = function _loadViewFromURL3() {
+            _loadViewFromURL = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
               var state;
               return _regenerator().w(function (_context) {
                 while (1) switch (_context.n) {
                   case 0:
+                    state = (0, _state.loadStateFromURL)(); // Load state and update inputs first
                     _context.n = 1;
                     return (0, _calendar.generateCalendar)(dependencies);
                   case 1:
-                    state = (0, _state.loadStateFromURL)();
                     if (state) {
                       (0, _state.applyMarksFromURL)(state.marks, _ui.updateCellView);
                       (0, _ui.updateCounter)();
@@ -240,22 +259,23 @@ function _main() {
                 }
               }, _callee);
             }));
-            return _refreshCalendarView.apply(this, arguments);
+            return _loadViewFromURL.apply(this, arguments);
           };
-          refreshCalendarView = function _refreshCalendarView2() {
-            return _refreshCalendarView.apply(this, arguments);
+          loadViewFromURL = function _loadViewFromURL2() {
+            return _loadViewFromURL.apply(this, arguments);
           };
           dependencies = {
             toggleMarking: _ui.toggleMarking,
             updateURLFromState: _state.updateURLFromState,
             updateCellView: _ui.updateCellView,
             updateCounter: _ui.updateCounter
-          };
+          }; // Function to load the view based on the current URL (used for initial load and syncing)
+          // Function to update the view based on user inputs (used for "Generate Calendar")
           (0, _notes.initNotes)({
             updateURLFromState: _state.updateURLFromState,
-            refreshCalendarView: refreshCalendarView
+            refreshCalendarView: loadViewFromURL // Use loadViewFromURL to sync after note updates
           });
-          document.getElementById('generate-calendar-btn').addEventListener('click', refreshCalendarView);
+          document.getElementById('generate-calendar-btn').addEventListener('click', updateViewFromInputs);
           document.getElementById('fill-squares-btn').addEventListener('click', function () {
             return (0, _ui.fillSquares)(_state.updateURLFromState);
           });
@@ -263,7 +283,7 @@ function _main() {
             (0, _ui.resetCalendar)(_state.updateURLFromState);
             (0, _notes.clearAllNotes)();
             (0, _state.updateURLFromState)();
-            refreshCalendarView();
+            loadViewFromURL();
           });
           splitDayToggleBtn = document.getElementById('split-day-toggle-btn');
           if (splitDayToggleBtn) {
@@ -273,27 +293,29 @@ function _main() {
               (0, _state.updateURLFromState)();
             });
           }
+
+          // Initial load logic
           initialState = (0, _state.loadStateFromURL)();
           if (!initialState) {
-            _context2.n = 2;
+            _context3.n = 2;
             break;
           }
           if (initialState.split) {
             splitDayToggleBtn.classList.add('active');
           }
           (0, _notes.loadNotesFromURL)(initialState.notes);
-          _context2.n = 1;
-          return refreshCalendarView();
+          _context3.n = 1;
+          return loadViewFromURL();
         case 1:
-          _context2.n = 3;
+          _context3.n = 3;
           break;
         case 2:
-          _context2.n = 3;
+          _context3.n = 3;
           return (0, _calendar.generateCalendar)(dependencies);
         case 3:
-          return _context2.a(2);
+          return _context3.a(2);
       }
-    }, _callee2);
+    }, _callee3);
   }));
   return _main.apply(this, arguments);
 }
