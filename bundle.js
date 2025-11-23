@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.generateCalendar = generateCalendar;
-exports.highlightCalendarDay = highlightCalendarDay;
 var _core = require("@hebcal/core");
 var _notes = require("./notes.js");
 function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
@@ -167,18 +166,11 @@ function _generateCalendar() {
                   if (noteIndex !== -1) {
                     note = notes[noteIndex];
                     preview = note.text.substring(0, 15);
-                    cellHTML += "<div class=\"note-indicator\" data-note-index=\"".concat(noteIndex, "\">(").concat(noteIndex + 1, ") ").concat(preview, "...</div>");
+                    cellHTML += "<div class=\"note-indicator\">(".concat(noteIndex + 1, ") ").concat(preview, "...</div>");
                   }
                   cell.innerHTML = cellHTML;
-                  cell.addEventListener('click', function (event) {
-                    var noteIndicator = event.target.closest('.note-indicator');
-                    if (noteIndicator) {
-                      event.stopPropagation();
-                      var index = noteIndicator.dataset.noteIndex;
-                      (0, _notes.highlightNote)(index);
-                    } else if (!(0, _notes.isNoteEditModeActive)()) {
-                      toggleMarking(this, updateURLFromState);
-                    }
+                  cell.addEventListener('click', function () {
+                    toggleMarking(this, updateURLFromState);
                   });
                   calendar.appendChild(cell);
                   currentDate.setDate(currentDate.getDate() + 1);
@@ -202,19 +194,6 @@ function _generateCalendar() {
     }, _callee);
   }));
   return _generateCalendar.apply(this, arguments);
-}
-function highlightCalendarDay(date) {
-  var cell = document.querySelector(".calendar-cell[data-date=\"".concat(date, "\"]"));
-  if (cell) {
-    cell.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-    cell.classList.add('flash-day');
-    setTimeout(function () {
-      cell.classList.remove('flash-day');
-    }, 1500);
-  }
 }
 
 },{"./notes.js":3,"@hebcal/core":6}],2:[function(require,module,exports){
@@ -328,12 +307,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.clearAllNotes = clearAllNotes;
 exports.getNotes = getNotes;
-exports.highlightNote = highlightNote;
 exports.initNotes = initNotes;
-exports.isNoteEditModeActive = isNoteEditModeActive;
 exports.loadNotesFromURL = loadNotesFromURL;
 exports.renderNotesList = renderNotesList;
-var _calendar = require("./calendar.js");
 /**
  * @file-overview This file manages the notes functionality, including adding,
  * editing, deleting, and displaying notes.
@@ -421,37 +397,9 @@ function renderNotesList() {
   });
   notes.forEach(function (note, index) {
     var li = document.createElement('li');
-    li.id = "note-".concat(index);
-    var noteContent = document.createElement('span');
-    noteContent.innerHTML = "<strong class=\"note-date\">".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
-    var editButton = document.createElement('button');
-    editButton.textContent = 'ערוך';
-    editButton.className = 'btn btn-edit';
-    editButton.addEventListener('click', function (e) {
-      e.stopPropagation();
-      selectedDate = note.date;
-      showNoteEditor(note.date);
-    });
-    li.appendChild(noteContent);
-    li.appendChild(editButton);
-    li.addEventListener('click', function () {
-      (0, _calendar.highlightCalendarDay)(note.date);
-    });
+    li.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
     notesList.appendChild(li);
   });
-}
-function highlightNote(noteIndex) {
-  var noteElement = document.getElementById("note-".concat(noteIndex));
-  if (noteElement) {
-    noteElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-    noteElement.classList.add('flash');
-    setTimeout(function () {
-      noteElement.classList.remove('flash');
-    }, 1500);
-  }
 }
 function loadNotesFromURL(notesData) {
   if (notesData) {
@@ -466,11 +414,8 @@ function clearAllNotes() {
   notes = [];
   renderNotesList();
 }
-function isNoteEditModeActive() {
-  return isNoteEditMode;
-}
 
-},{"./calendar.js":1}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

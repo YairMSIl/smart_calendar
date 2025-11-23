@@ -125,6 +125,18 @@ body {
     margin: 20px 0;
     text-align: center;
 }
+.note-controls {
+    margin: 20px 0;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.note-controls label {
+    color: var(--fg-color);
+    font-size: 16px;
+}
 .btn {
     background: var(--primary-accent);
     color: var(--text-light);
@@ -267,22 +279,17 @@ body {
     color: #1c2833;
   }
 
+  /* Notes section in dark mode */
+  #notes-container h3 {
+    color: #ffffff;
+  }
+
   #notes-list li {
-    background: #4a4a4a;
-    color: #f1f1f1;
-  }
-
-  .note-controls, #notes-container h3 {
-      color: var(--fg-color);
+    background: #2a2a2a;
+    color: #4CAF50;
+    border-right: 4px solid #4CAF50;
   }
 }
-
-#notes-list .note-date {
-    font-weight: normal;
-    font-size: 0.9em;
-    color: var(--text-muted);
-}
-
 @media (max-width: 768px) {
     .calendar-container {
         padding: 15px;
@@ -401,11 +408,6 @@ body {
     resize: vertical;
 }
 
-.note-controls {
-    text-align: center;
-    margin: 15px 0;
-}
-
 .note-indicator {
     font-size: 11px;
     color: var(--success-accent);
@@ -414,47 +416,6 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    cursor: pointer;
-}
-
-#notes-list li.flash {
-    animation: flash-note 1.5s;
-}
-
-@keyframes flash-note {
-  0%, 100% {
-    box-shadow: 0 0 8px var(--success-accent);
-    transform: scale(1.01);
-  }
-  50% {
-    box-shadow: 0 0 20px var(--success-accent);
-    transform: scale(1.02);
-  }
-}
-
-.calendar-cell.flash-day {
-    animation: flash-day 1.5s;
-}
-
-@keyframes flash-day {
-    0%, 100% {
-        box-shadow: 0 0 8px var(--primary-accent);
-    }
-    50% {
-        box-shadow: 0 0 20px var(--primary-accent);
-    }
-}
-
-#notes-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-edit {
-    padding: 5px 10px;
-    font-size: 14px;
-    background: var(--primary-accent);
 }
 
 .hidden {
