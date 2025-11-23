@@ -112,7 +112,7 @@ function _generateCalendar() {
             return new Date(a.date) - new Date(b.date);
           });
           _loop = /*#__PURE__*/_regenerator().m(function _loop() {
-            var cell, weekday, formattedDate, cellHTML, isFirstDayOfCalendar, currentGregorianMonth, monthName, hdate, hebrewDayString, hebrewMonth, isFirstOfHebrewMonth, hebrewDateInfo, noteIndex, note, preview;
+            var cell, weekday, formattedDate, cellHTML, isFirstDayOfCalendar, currentGregorianMonth, monthName, hdate, hebrewDayString, hebrewMonth, isFirstOfHebrewMonth, hebrewDateInfo, noteIndex, note, preview, noteDate, isInRange, noteClass;
             return _regenerator().w(function (_context) {
               while (1) switch (_context.n) {
                 case 0:
@@ -165,12 +165,26 @@ function _generateCalendar() {
                   });
                   if (noteIndex !== -1) {
                     note = notes[noteIndex];
-                    preview = note.text.substring(0, 15);
-                    cellHTML += "<div class=\"note-indicator\">(".concat(noteIndex + 1, ") ").concat(preview, "...</div>");
+                    preview = note.text.substring(0, 15); // Check if note is within current date range
+                    noteDate = new Date(note.date);
+                    isInRange = noteDate >= startDate && noteDate <= endDate;
+                    noteClass = isInRange ? 'note-indicator' : 'note-indicator note-out-of-range';
+                    cellHTML += "<div class=\"".concat(noteClass, "\" data-note-date=\"").concat(formattedDate, "\">(").concat(noteIndex + 1, ") ").concat(preview, "...</div>");
                   }
                   cell.innerHTML = cellHTML;
-                  cell.addEventListener('click', function () {
-                    toggleMarking(this, updateURLFromState);
+
+                  // Add click handler for marking
+                  cell.addEventListener('click', function (event) {
+                    // Check if clicking on note indicator
+                    if (event.target.classList.contains('note-indicator')) {
+                      event.stopPropagation();
+                      var _noteDate = event.target.dataset.noteDate;
+                      if (_noteDate) {
+                        (0, _notes.highlightNoteInList)(_noteDate);
+                      }
+                    } else {
+                      toggleMarking(this, updateURLFromState);
+                    }
                   });
                   calendar.appendChild(cell);
                   currentDate.setDate(currentDate.getDate() + 1);
@@ -222,13 +236,31 @@ function _main() {
         case 0:
           _updateViewFromInputs = function _updateViewFromInputs3() {
             _updateViewFromInputs = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+              var newStartDate, newEndDate, params, urlOldStartDate, urlOldEndDate, oldMarksParam, oldMarks, preservedMarks;
               return _regenerator().w(function (_context2) {
                 while (1) switch (_context2.n) {
                   case 0:
+                    // FIRST: Get new dates from inputs (before anything else modifies them!)
+                    newStartDate = document.getElementById('startDate').value;
+                    newEndDate = document.getElementById('endDate').value; // SECOND: Get old state from URL (without modifying inputs)
+                    params = new URLSearchParams(window.location.search);
+                    urlOldStartDate = params.get('startDate');
+                    urlOldEndDate = params.get('endDate');
+                    oldMarksParam = params.get('marks');
+                    oldMarks = oldMarksParam || ''; // THIRD: Calculate preserved marks based on date changes
+                    preservedMarks = (0, _state.calculatePreservedMarks)(urlOldStartDate, urlOldEndDate, newStartDate, newEndDate, oldMarks); // FOURTH: Generate the new calendar (creates new empty cells)
                     _context2.n = 1;
                     return (0, _calendar.generateCalendar)(dependencies);
                   case 1:
-                    (0, _state.updateURLFromState)(); // Update URL to match the new inputs
+                    // FIFTH: Apply the preserved marks to the new calendar
+                    if (preservedMarks) {
+                      (0, _state.applyMarksFromURL)(preservedMarks, _ui.updateCellView);
+                      (0, _ui.updateCounter)();
+                      (0, _ui.applySplitDayView)();
+                    }
+
+                    // SIXTH: Update URL from the cells that now have marks applied
+                    (0, _state.updateURLFromState)();
                   case 2:
                     return _context2.a(2);
                 }
@@ -280,10 +312,33 @@ function _main() {
             return (0, _ui.fillSquares)(_state.updateURLFromState);
           });
           document.getElementById('reset-calendar-btn').addEventListener('click', function () {
-            (0, _ui.resetCalendar)(_state.updateURLFromState);
-            (0, _notes.clearAllNotes)();
-            (0, _state.updateURLFromState)();
-            loadViewFromURL();
+            // Count markers and notes before resetting
+            var cells = document.querySelectorAll('.calendar-cell[data-marking]');
+            var blueCount = 0;
+            var pinkCount = 0;
+            cells.forEach(function (cell) {
+              var marking = cell.dataset.marking;
+              if (marking === 'blue' || marking === 'blue-bg') blueCount++;
+              if (marking === 'pink' || marking === 'pink-bg') pinkCount++;
+            });
+            var notesCount = (0, _notes.getNotes)().length;
+
+            // Build confirmation message
+            var message = 'האם אתה בטוח שברצונך לאפס את כל התוכן?\n\n';
+            message += 'פעולה זו תמחק:\n';
+            if (notesCount > 0) message += "- ".concat(notesCount, " \u05D4\u05E2\u05E8\u05D5\u05EA\n");
+            if (blueCount > 0) message += "- ".concat(blueCount, " \u05E1\u05D9\u05DE\u05D5\u05E0\u05D9\u05DD \u05DB\u05D7\u05D5\u05DC\u05D9\u05DD\n");
+            if (pinkCount > 0) message += "- ".concat(pinkCount, " \u05E1\u05D9\u05DE\u05D5\u05E0\u05D9\u05DD \u05D5\u05E8\u05D5\u05D3\u05D9\u05DD\n");
+            if (notesCount === 0 && blueCount === 0 && pinkCount === 0) {
+              alert('אין תוכן למחיקה');
+              return;
+            }
+            if (confirm(message)) {
+              (0, _ui.resetCalendar)(_state.updateURLFromState);
+              (0, _notes.clearAllNotes)();
+              (0, _state.updateURLFromState)();
+              loadViewFromURL();
+            }
           });
           splitDayToggleBtn = document.getElementById('split-day-toggle-btn');
           if (splitDayToggleBtn) {
@@ -329,6 +384,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.clearAllNotes = clearAllNotes;
 exports.getNotes = getNotes;
+exports.highlightNoteInList = highlightNoteInList;
 exports.initNotes = initNotes;
 exports.loadNotesFromURL = loadNotesFromURL;
 exports.renderNotesList = renderNotesList;
@@ -417,11 +473,80 @@ function renderNotesList() {
   notes.sort(function (a, b) {
     return new Date(a.date) - new Date(b.date);
   });
+
+  // Get current date range
+  var startDateInput = document.getElementById('startDate');
+  var endDateInput = document.getElementById('endDate');
+  var startDate = startDateInput ? new Date(startDateInput.value) : null;
+  var endDate = endDateInput ? new Date(endDateInput.value) : null;
   notes.forEach(function (note, index) {
     var li = document.createElement('li');
+
+    // Check if note is out of range
+    var noteDate = new Date(note.date);
+    var isOutOfRange = startDate && endDate && (noteDate < startDate || noteDate > endDate);
+    if (isOutOfRange) {
+      li.classList.add('note-out-of-range');
+    }
     li.innerHTML = "<strong>".concat(index + 1, ". ").concat(note.date, ":</strong> ").concat(note.text);
+    li.style.cursor = 'pointer';
+
+    // Add click handler to highlight corresponding calendar day
+    li.addEventListener('click', function () {
+      highlightCalendarDay(note.date);
+    });
     notesList.appendChild(li);
   });
+}
+
+/**
+ * Highlights a calendar day and scrolls to it
+ */
+function highlightCalendarDay(date) {
+  var cell = document.querySelector(".calendar-cell[data-date=\"".concat(date, "\"]"));
+  if (!cell) return;
+
+  // Scroll to the cell
+  cell.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  // Add highlight class
+  cell.classList.add('highlighted-day');
+
+  // Remove highlight after 3 seconds
+  setTimeout(function () {
+    cell.classList.remove('highlighted-day');
+  }, 3000);
+}
+
+/**
+ * Highlights a note in the list and scrolls to it
+ */
+function highlightNoteInList(date) {
+  var noteIndex = notes.findIndex(function (n) {
+    return n.date === date;
+  });
+  if (noteIndex === -1) return;
+  var notesList = document.getElementById('notes-list');
+  var noteItems = notesList.querySelectorAll('li');
+  var noteItem = noteItems[noteIndex];
+  if (!noteItem) return;
+
+  // Scroll to the note
+  noteItem.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  // Add highlight class
+  noteItem.classList.add('highlighted-note');
+
+  // Remove highlight after 3 seconds
+  setTimeout(function () {
+    noteItem.classList.remove('highlighted-note');
+  }, 3000);
 }
 function loadNotesFromURL(notesData) {
   if (notesData) {
@@ -444,6 +569,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.applyMarksFromURL = applyMarksFromURL;
+exports.calculatePreservedMarks = calculatePreservedMarks;
 exports.loadStateFromURL = loadStateFromURL;
 exports.updateURLFromState = updateURLFromState;
 var _ui = require("./ui.js");
@@ -453,9 +579,64 @@ var _notes = require("./notes.js");
  * It handles loading the state from the URL on page load and updating the URL when the state changes.
  */
 
+/**
+ * Helper function to calculate the number of days between two dates
+ */
+function daysBetween(date1, date2) {
+  var d1 = new Date(date1);
+  var d2 = new Date(date2);
+  var diffTime = Math.abs(d2 - d1);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * Calculate preserved marks when date range changes
+ */
+function calculatePreservedMarks(oldStartDate, oldEndDate, newStartDate, newEndDate, oldMarks) {
+  if (!oldStartDate || !oldEndDate || !oldMarks || !newStartDate || !newEndDate) {
+    return oldMarks;
+  }
+
+  // If dates didn't change, return original marks
+  if (oldStartDate === newStartDate && oldEndDate === newEndDate) {
+    return oldMarks;
+  }
+  var oldStart = new Date(oldStartDate);
+  var oldEnd = new Date(oldEndDate);
+  var newStart = new Date(newStartDate);
+  var newEnd = new Date(newEndDate);
+  var daysAddedBefore = oldStart > newStart ? daysBetween(newStart, oldStart) : 0;
+  var daysRemovedBefore = newStart > oldStart ? daysBetween(oldStart, newStart) : 0;
+  var daysAddedAfter = newEnd > oldEnd ? daysBetween(oldEnd, newEnd) : 0;
+  var daysRemovedAfter = oldEnd > newEnd ? daysBetween(newEnd, oldEnd) : 0;
+  var preservedMarks = oldMarks;
+
+  // Handle changes at the start
+  if (daysAddedBefore > 0) {
+    preservedMarks = '0'.repeat(daysAddedBefore) + preservedMarks;
+  } else if (daysRemovedBefore > 0) {
+    preservedMarks = preservedMarks.substring(daysRemovedBefore);
+  }
+
+  // Handle changes at the end
+  if (daysAddedAfter > 0) {
+    preservedMarks = preservedMarks + '0'.repeat(daysAddedAfter);
+  } else if (daysRemovedAfter > 0) {
+    preservedMarks = preservedMarks.substring(0, preservedMarks.length - daysRemovedAfter);
+  }
+  return preservedMarks;
+}
 function updateURLFromState() {
-  var startDate = document.getElementById('startDate').value;
-  var endDate = document.getElementById('endDate').value;
+  var newStartDate = document.getElementById('startDate').value;
+  var newEndDate = document.getElementById('endDate').value;
+
+  // Get old state from URL
+  var params = new URLSearchParams(window.location.search);
+  var oldStartDate = params.get('startDate');
+  var oldEndDate = params.get('endDate');
+  var oldMarks = params.get('marks') || '';
+
+  // Always read current marks from cells
   var cells = document.querySelectorAll('.calendar-cell[data-date]');
   var marks = Array.from(cells).map(function (cell) {
     var marking = cell.dataset.marking;
@@ -465,19 +646,19 @@ function updateURLFromState() {
     if (marking === 'pink-bg') return '4';
     return '0';
   }).join('');
-  var params = new URLSearchParams();
-  params.set('startDate', startDate);
-  params.set('endDate', endDate);
-  params.set('marks', marks);
+  var newParams = new URLSearchParams();
+  newParams.set('startDate', newStartDate);
+  newParams.set('endDate', newEndDate);
+  newParams.set('marks', marks);
   var splitButton = document.getElementById('split-day-toggle-btn');
   if (splitButton && splitButton.classList.contains('active')) {
-    params.set('split', 'true');
+    newParams.set('split', 'true');
   }
   var notes = (0, _notes.getNotes)();
   if (notes && notes.length > 0) {
-    params.set('notes', encodeURIComponent(JSON.stringify(notes)));
+    newParams.set('notes', encodeURIComponent(JSON.stringify(notes)));
   }
-  history.replaceState({}, '', "?".concat(params.toString()));
+  history.replaceState({}, '', "?".concat(newParams.toString()));
 }
 function loadStateFromURL() {
   var params = new URLSearchParams(window.location.search);
@@ -519,8 +700,11 @@ function applyMarksFromURL(marks, updateCellView) {
       var markType = marks[index];
       if (markType !== '0') {
         cell.dataset.marking = markMapping[markType];
-        updateCellView(cell);
+      } else {
+        // Clear marking if it should be '0'
+        delete cell.dataset.marking;
       }
+      updateCellView(cell);
     }
   });
   (0, _ui.applySplitDayView)();

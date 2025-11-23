@@ -360,9 +360,30 @@ body {
   }
 }
 
+@keyframes flashBlue {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(33, 150, 243, 1);
+  }
+}
+
 .today {
   animation: flash 1.5s infinite;
   border: 1px solid orange;
+}
+
+.highlighted-day {
+  animation: flashBlue 0.8s ease-in-out 3;
+  border: 2px solid var(--primary-accent) !important;
+  transition: border 0.3s ease-out;
+}
+
+.highlighted-note {
+  background-color: rgba(33, 150, 243, 0.2) !important;
+  border-left: 4px solid var(--primary-accent) !important;
+  transition: all 0.3s ease-out;
 }
 
 #notes-container {
@@ -417,7 +438,19 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.note-out-of-range {
+    color: var(--danger-accent) !important;
+}
 
 .hidden {
     display: none;
+}
+
+.app-footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 14px;
 }
