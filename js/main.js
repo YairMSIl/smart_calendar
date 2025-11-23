@@ -17,9 +17,10 @@ async function main() {
         updateCounter,
     };
 
-    async function refreshCalendarView() {
+    // Function to load the view based on the current URL (used for initial load and syncing)
+    async function loadViewFromURL() {
+        const state = loadStateFromURL(); // Load state and update inputs first
         await generateCalendar(dependencies);
-        const state = loadStateFromURL();
         if (state) {
             applyMarksFromURL(state.marks, updateCellView);
             updateCounter();
@@ -27,18 +28,24 @@ async function main() {
         }
     }
 
+    // Function to update the view based on user inputs (used for "Generate Calendar")
+    async function updateViewFromInputs() {
+        await generateCalendar(dependencies);
+        updateURLFromState(); // Update URL to match the new inputs
+    }
+
     initNotes({
         updateURLFromState,
-        refreshCalendarView,
+        refreshCalendarView: loadViewFromURL, // Use loadViewFromURL to sync after note updates
     });
 
-    document.getElementById('generate-calendar-btn').addEventListener('click', refreshCalendarView);
+    document.getElementById('generate-calendar-btn').addEventListener('click', updateViewFromInputs);
     document.getElementById('fill-squares-btn').addEventListener('click', () => fillSquares(updateURLFromState));
     document.getElementById('reset-calendar-btn').addEventListener('click', () => {
         resetCalendar(updateURLFromState);
         clearAllNotes();
         updateURLFromState();
-        refreshCalendarView();
+        loadViewFromURL();
     });
 
     const splitDayToggleBtn = document.getElementById('split-day-toggle-btn');
@@ -50,13 +57,14 @@ async function main() {
         });
     }
 
+    // Initial load logic
     const initialState = loadStateFromURL();
     if (initialState) {
         if (initialState.split) {
             splitDayToggleBtn.classList.add('active');
         }
         loadNotesFromURL(initialState.notes);
-        await refreshCalendarView();
+        await loadViewFromURL();
     } else {
         await generateCalendar(dependencies);
     }
