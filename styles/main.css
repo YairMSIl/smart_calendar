@@ -125,6 +125,18 @@ body {
     margin: 20px 0;
     text-align: center;
 }
+.note-controls {
+    margin: 20px 0;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.note-controls label {
+    color: var(--fg-color);
+    font-size: 16px;
+}
 .btn {
     background: var(--primary-accent);
     color: var(--text-light);
@@ -266,6 +278,17 @@ body {
   .pink-bg .events div {
     color: #1c2833;
   }
+
+  /* Notes section in dark mode */
+  #notes-container h3 {
+    color: #ffffff;
+  }
+
+  #notes-list li {
+    background: #2a2a2a;
+    color: #4CAF50;
+    border-right: 4px solid #4CAF50;
+  }
 }
 @media (max-width: 768px) {
     .calendar-container {
@@ -387,7 +410,7 @@ body {
 
 .note-indicator {
     font-size: 11px;
-    color: var(--danger-accent);
+    color: var(--success-accent);
     font-weight: bold;
     margin-top: 4px;
     white-space: nowrap;
