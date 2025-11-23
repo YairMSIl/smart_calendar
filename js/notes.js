@@ -107,8 +107,59 @@ export function renderNotesList() {
         }
 
         li.innerHTML = `<strong>${index + 1}. ${note.date}:</strong> ${note.text}`;
+        li.style.cursor = 'pointer';
+
+        // Add click handler to highlight corresponding calendar day
+        li.addEventListener('click', () => {
+            highlightCalendarDay(note.date);
+        });
+
         notesList.appendChild(li);
     });
+}
+
+/**
+ * Highlights a calendar day and scrolls to it
+ */
+function highlightCalendarDay(date) {
+    const cell = document.querySelector(`.calendar-cell[data-date="${date}"]`);
+    if (!cell) return;
+
+    // Scroll to the cell
+    cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Add highlight class
+    cell.classList.add('highlighted-day');
+
+    // Remove highlight after 3 seconds
+    setTimeout(() => {
+        cell.classList.remove('highlighted-day');
+    }, 3000);
+}
+
+/**
+ * Highlights a note in the list and scrolls to it
+ */
+export function highlightNoteInList(date) {
+    const noteIndex = notes.findIndex(n => n.date === date);
+    if (noteIndex === -1) return;
+
+    const notesList = document.getElementById('notes-list');
+    const noteItems = notesList.querySelectorAll('li');
+    const noteItem = noteItems[noteIndex];
+
+    if (!noteItem) return;
+
+    // Scroll to the note
+    noteItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Add highlight class
+    noteItem.classList.add('highlighted-note');
+
+    // Remove highlight after 3 seconds
+    setTimeout(() => {
+        noteItem.classList.remove('highlighted-note');
+    }, 3000);
 }
 
 export function loadNotesFromURL(notesData) {

@@ -1,5 +1,5 @@
 import { HebrewCalendar, HDate } from '@hebcal/core';
-import { getNotes } from './notes.js';
+import { getNotes, highlightNoteInList } from './notes.js';
 /**
  * @file-overview This file contains the core calendar generation logic, including
  * fetching data from the Hebcal API and building the HTML for the calendar grid.
@@ -150,12 +150,23 @@ export async function generateCalendar({ toggleMarking, updateURLFromState }) {
             const noteDate = new Date(note.date);
             const isInRange = noteDate >= startDate && noteDate <= endDate;
             const noteClass = isInRange ? 'note-indicator' : 'note-indicator note-out-of-range';
-            cellHTML += `<div class="${noteClass}">(${noteIndex + 1}) ${preview}...</div>`;
+            cellHTML += `<div class="${noteClass}" data-note-date="${formattedDate}">(${noteIndex + 1}) ${preview}...</div>`;
         }
 
         cell.innerHTML = cellHTML;
-        cell.addEventListener('click', function() {
-            toggleMarking(this, updateURLFromState);
+
+        // Add click handler for marking
+        cell.addEventListener('click', function(event) {
+            // Check if clicking on note indicator
+            if (event.target.classList.contains('note-indicator')) {
+                event.stopPropagation();
+                const noteDate = event.target.dataset.noteDate;
+                if (noteDate) {
+                    highlightNoteInList(noteDate);
+                }
+            } else {
+                toggleMarking(this, updateURLFromState);
+            }
         });
         calendar.appendChild(cell);
         currentDate.setDate(currentDate.getDate() + 1);
